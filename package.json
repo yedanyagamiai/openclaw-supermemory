@@ -1,0 +1,15 @@
+{
+  "name": "openclaw-supermemory",
+  "version": "1.0.0",
+  "description": "SuperMemory WebSocket Plugin for OpenClaw",
+  "type": "module",
+  "dependencies": {
+    "ws": "^8.0.0",
+    "@types/ws": "^8.0.0"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

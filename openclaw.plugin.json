@@ -1,0 +1,9 @@
+{
+  "id": "openclaw-supermemory",
+  "channels": ["supermemory"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
