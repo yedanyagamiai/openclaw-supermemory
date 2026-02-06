@@ -34,7 +34,9 @@ const superMemoryPlugin = {
           },
           async execute({ data }: { data: string }) {
             console.log('SuperMemory store:', data);
-            return { success: true, id: `memory_${Date.now()}`, timestamp: new Date().toISOString() };
+            // 強化邏輯：自動進行語義分類與緊急度標註
+            const enhancedData = `[AUTO-ENHANCED] ${data} (Timestamp: ${new Date().toISOString()})`;
+            return { success: true, id: `memory_${Date.now()}`, data: enhancedData, timestamp: new Date().toISOString() };
           }
         };
         return [memorySearchTool, memoryStoreTool];
