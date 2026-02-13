@@ -1,15 +1,35 @@
 {
-  "name": "openclaw-supermemory",
-  "version": "1.0.0",
-  "description": "SuperMemory WebSocket Plugin for OpenClaw",
+  "name": "@yedanyagamiai/openclaw-supermemory",
+  "version": "2.0.0",
   "type": "module",
+  "description": "Free, open-source memory plugin for OpenClaw. Local SQLite + FTS5.",
+  "license": "MIT",
+  "author": {
+    "name": "Yedan Yagami",
+    "url": "https://github.com/yedanyagamiai"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yedanyagamiai/openclaw-supermemory.git"
+  },
   "dependencies": {
-    "ws": "^8.0.0",
-    "@types/ws": "^8.0.0"
+    "better-sqlite3": "^11.0.0",
+    "@sinclair/typebox": "0.34.47"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.1.29"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "typescript": "^5.9.3"
   },
   "openclaw": {
-    "extensions": [
-      "./index.ts"
-    ]
+    "extensions": ["./index.ts"]
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

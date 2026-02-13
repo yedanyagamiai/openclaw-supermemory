@@ -1,9 +1,36 @@
 {
   "id": "openclaw-supermemory",
-  "channels": ["supermemory"],
+  "name": "SuperMemory",
+  "description": "Free, open-source memory plugin for OpenClaw. Local SQLite storage — no API keys, no paid plans.",
+  "kind": "memory",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
-    "properties": {}
+    "properties": {
+      "dbPath": {
+        "type": "string",
+        "description": "Path to SQLite database file. Defaults to ~/.openclaw/supermemory/memories.db"
+      },
+      "autoRecall": {
+        "type": "boolean",
+        "default": true,
+        "description": "Automatically inject relevant memories before each conversation turn"
+      },
+      "autoCapture": {
+        "type": "boolean",
+        "default": true,
+        "description": "Automatically extract and store memories after each conversation turn"
+      },
+      "maxRecallResults": {
+        "type": "number",
+        "default": 5,
+        "description": "Maximum number of memories to inject during auto-recall"
+      },
+      "debug": {
+        "type": "boolean",
+        "default": false,
+        "description": "Enable debug logging"
+      }
+    }
   }
 }
