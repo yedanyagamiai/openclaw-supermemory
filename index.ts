@@ -99,7 +99,7 @@ class LocalMemoryStore {
   search(query:string,limit:number=5):Memory[] {
     if(!query.trim()) return [];
     const ftsQ=query.replace(/[^\w\s]/g," ").split(/\s+/)
-      .filter(w=>w.length>1).map(w=>`"${w}"`).join(" OR ");
+      .filter((w)=>w.length>1).map((w)=>"\""+w+"\"").join(" OR ");
     if(!ftsQ) return [];
     try {
       return this.db.prepare(
@@ -111,9 +111,11 @@ class LocalMemoryStore {
       return this.db.prepare(
         `SELECT id,content,category,session_key,created_at,metadata
          FROM memories WHERE content LIKE ? ORDER BY created_at DESC LIMIT ?`
-      ).all(`%${query}%`,limit) as Memory[];
+      ).all("%"+query+"%",limit) as Memory[];
     }
   }
+  close(): void { this.db.close(); }
+}
 function extractMemorableContent(text:string):string[] {
   const memories:string[]=[];
   const cleaned=text
@@ -271,16 +273,5 @@ const superMemoryPlugin = {
     });
   },
 };
-export default su
-cat >> index.ts << 'P17'
-    api.registerService({
-      id:"openclaw-supermemory",
-      start:()=>{
-        const p=store.profile();
-        log.info(`initialized (${p.total} memories, ${p.dbSizeKB}KB)`);
-      },
-      stop:()=>{store.close();log.info("stopped");},
-    });
-  },
-};
+
 export default superMemoryPlugin;
