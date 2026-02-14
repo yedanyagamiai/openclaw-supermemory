@@ -6,8 +6,8 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { Type } from "@sinclair/typebox";
 import Database from "better-sqlite3";
-import { join } from "node:path";
-import { mkdirSync, existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { existsSync, mkdirSync, statSync } from "node:fs";
 interface Memory {
   id: string;
   content: string;
@@ -51,9 +51,11 @@ function detectCategory(text:string):MemoryCategory {
 }
 class LocalMemoryStore {
   private db:InstanceType<typeof Database>;
+  private dbPath:string;
   constructor(dbPath:string) {
-    const dir=dbPath.substring(0,dbPath.lastIndexOf("/"));
+    const dir=dirname(dbPath);
     if(dir&&!existsSync(dir)){mkdirSync(dir,{recursive:true});}
+    this.dbPath=dbPath;
     this.db=new Database(dbPath);
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("foreign_keys = ON");
@@ -113,6 +115,39 @@ class LocalMemoryStore {
          FROM memories WHERE content LIKE ? ORDER BY created_at DESC LIMIT ?`
       ).all("%"+query+"%",limit) as Memory[];
     }
+  }
+  forget(target:string):number {
+    const cleaned=target.trim();
+    if(!cleaned) return 0;
+    const result=this.db.prepare(
+      `DELETE FROM memories WHERE id=? OR content LIKE ?`
+    ).run(cleaned,"%"+cleaned+"%");
+    return result.changes;
+  }
+  profile():{total:number;byCategory:Record<MemoryCategory,number>;dbSizeKB:number;recent:Memory[]} {
+    const total=((this.db.prepare(`SELECT COUNT(*) AS count FROM memories`).get() as {count:number}|undefined)?.count)||0;
+    const byCategory=Object.fromEntries(
+      MEMORY_CATEGORIES.map((c)=>[c,0])
+    ) as Record<MemoryCategory,number>;
+    const categoryRows=this.db.prepare(
+      `SELECT category, COUNT(*) AS count FROM memories GROUP BY category`
+    ).all() as Array<{category:string;count:number}>;
+    for(const row of categoryRows){
+      if((MEMORY_CATEGORIES as readonly string[]).includes(row.category)){
+        byCategory[row.category as MemoryCategory]=row.count;
+      }
+    }
+    const dbSizeBytes=existsSync(this.dbPath)?statSync(this.dbPath).size:0;
+    const recent=this.db.prepare(
+      `SELECT id,content,category,session_key,created_at,metadata
+       FROM memories ORDER BY created_at DESC LIMIT 10`
+    ).all() as Memory[];
+    return {
+      total,
+      byCategory,
+      dbSizeKB:Number((dbSizeBytes/1024).toFixed(2)),
+      recent,
+    };
   }
   close(): void { this.db.close(); }
 }
